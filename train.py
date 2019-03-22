@@ -20,8 +20,8 @@ class FruitNet(nn.Module):
         self.pool2 = nn.MaxPool2d(3)
         self.conv3 = nn.Conv2d(64,64, kernel_size=7)
         self.pool3 = nn.MaxPool2d(5)
-        self.linear1 = nn.Linear(64, 100)
-        self.linear2 = nn.Linear(100, 65) 
+        self.linear1 = nn.Linear(64, 120)
+        self.linear2 = nn.Linear(120, 65) 
 
     def forward(self, x):
         x = self.pool1(F.relu(self.conv1(x)))
@@ -40,7 +40,6 @@ def train_network(dataloader_train):
     optimizer = torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.9)
     criterion = nn.CrossEntropyLoss()
     
-    epochs = 10
     losses = []
     for epoch in range(epochs):
         current_loss = 0.0
@@ -94,9 +93,9 @@ def main():
     root_dir = args.data_dir
     data_transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
     transformed_dataset = fruit_data.Fruit(root_dir, train=True, transform=data_transform)
-    dataloader_train = DataLoader(transformed_dataset, batch_size=16, shuffle=True, num_workers=4)
+    dataloader_train = DataLoader(transformed_dataset, batch_size=64, shuffle=True, num_workers=4)
     transformed_test_dataset = fruit_data.Fruit(root_dir, train=False, transform=data_transform)
-    dataloader_test = DataLoader(transformed_test_dataset, batch_size=16, shuffle=True, num_workers=4)
+    dataloader_test = DataLoader(transformed_test_dataset, batch_size=64, shuffle=True, num_workers=4)
     
     dataiter = iter(dataloader_train)
     images, labels = dataiter.next()
@@ -110,5 +109,7 @@ def main():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-dir', type=str, required=True, help="Dataset directory where npy files are stored")
+    parser.add_argument('--epochs', type=int, required=False, default=10, help="Number of epochs")
     args = parser.parse_args()
+    epochs = args.epochs
     main()
